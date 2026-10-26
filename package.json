@@ -1,0 +1,18 @@
+{
+  "name": "puit24210078-hospital-management-system",
+  "version": "1.0.0",
+  "description": "PUIT24210078 Hospital Management System - Patients, Doctors, Appointments, First Aid Drugs, and On-Duty Roster",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "hospital-management",
+    "healthcare",
+    "medical-system",
+    "first-aid",
+    "doctor-appointments"
+  ],
+  "author": "PUIT24210078",
+  "license": "ISC"
+}

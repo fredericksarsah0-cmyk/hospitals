@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUIT24210078 HOSPITAL MANAGEMENT SYSTEM</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230284c7'><path d='M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z'/></svg>">
+</head>
+<body>
+    <!-- =========================================================================
+         PUIT24210078 SECURE AUTHENTICATION PORTAL (SALT, PEPPER & 2FA OTP)
+         Gated access screen: HMS cannot be viewed until identity is verified
+         ========================================================================= -->
+    <div class="auth-screen-wrapper" id="authScreenWrapper">
+        <div class="auth-card-container">
+            <!-- Brand Header -->
+            <div class="auth-brand-header">
+                <div class="auth-brand-icon">✚</div>
+                <div class="auth-brand-text">
+                    <h1>PUIT24210078</h1>
+                    <p>Hospital Management System</p>
+                </div>
+            </div>
+
+            <!-- Multi-Step Progress Tracker -->
+            <div class="auth-stepper">
+                <div class="stepper-step active" id="stepIndicator1">
+                    <div class="step-num">1</div>
+                    <div class="step-label">Credentials</div>
+                </div>
+                <div class="stepper-divider"></div>
+                <div class="stepper-step" id="stepIndicator2">
+                    <div class="step-num">2</div>
+                    <div class="step-label">2-Step OTP</div>
+                </div>
+                <div class="stepper-divider"></div>
+                <div class="stepper-step" id="stepIndicator3">
+                    <div class="step-num">✓</div>
+                    <div class="step-label">Access</div>
+                </div>
+            </div>
+
+            <!-- ================= STEP 1: CREDENTIALS ================= -->
+            <div class="auth-panel" id="authStep1Panel">
+                <div class="auth-panel-heading">
+                    <h2>Clinical Staff Sign In</h2>
+                    <p>Enter your staff credentials to begin cryptographic identity verification.</p>
+                </div>
+
+                <div class="auth-error-alert" id="loginErrorMessage" style="display: none;"></div>
+
+                <form id="authLoginForm" novalidate>
+                    <div class="form-group">
+                        <label for="loginUsername">Staff Username / ID <span class="req">*</span></label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">👤</span>
+                            <input type="text" id="loginUsername" placeholder="e.g. admin or dr.adebayo" required autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password <span class="req">*</span></label>
+                        <div class="input-with-icon">
+                            <span class="input-icon">🔑</span>
+                            <input type="password" id="loginPassword" placeholder="••••••••••••" required autocomplete="current-password">
+                            <button type="button" class="btn-toggle-pwd" id="toggleLoginPassword" aria-label="Toggle password visibility">👁</button>
+                        </div>
+                    </div>
+
+                    <div class="auth-form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="rememberTerminal" checked>
+                            <span class="checkbox-label">Remember workstation</span>
+                        </label>
+                        <button type="button" class="btn-text-link" id="btnOpenSecurityModal">
+                            🔐 Salt & Pepper Info
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block btn-auth-action" id="btnSubmitCredentials">
+                        <span>🔒 Verify Credentials & Send OTP</span>
+                    </button>
+                </form>
+
+                <!-- Quick-Fill Demo Credentials Helper -->
+                <div class="demo-accounts-box">
+                    <div class="demo-accounts-title">
+                        <span>⚡ 1-Click Clinical Test Accounts:</span>
+                    </div>
+                    <div class="demo-pills-row">
+                        <button type="button" class="demo-account-pill" data-username="admin" data-password="AdminPassword123!">
+                            👑 Admin Staff
+                        </button>
+                        <button type="button" class="demo-account-pill" data-username="dr.adebayo" data-password="DoctorPassword123!">
+                            👨‍⚕️ Dr. Adebayo
+                        </button>
+                        <button type="button" class="demo-account-pill" data-username="nurse.chioma" data-password="NursePassword123!">
+                            👩‍⚕️ Nurse Chioma
+                        </button>
+                    </div>
+                </div>
+
+                <div class="auth-footer-links">
+                    <span>New hospital staff member?</span>
+                    <button type="button" class="btn-text-link" id="btnOpenRegisterModal">Register Staff Account</button>
+                </div>
+            </div>
+
+            <!-- ================= STEP 2: TWO-STEP AUTHENTICATION (OTP) ================= -->
+            <div class="auth-panel" id="authStep2Panel" style="display: none;">
+                <div class="auth-panel-heading">
+                    <div class="badge-2fa">🔐 Two-Step Verification (2FA)</div>
+                    <h2>Enter 6-Digit OTP Code</h2>
+                    <p>Identity verification code dispatched for <strong id="otpStaffName">Clinical Staff</strong>.</p>
+                </div>
+
+                <!-- Live Dispatch Notification Preview Card (The received OTP) -->
+                <div class="simulated-dispatch-card" id="simulatedDispatchCard">
+                    <div class="dispatch-header">
+                        <div class="dispatch-header-left">
+                            <span class="dispatch-pulse-dot"></span>
+                            <span class="dispatch-type">🚨 SECURE DISPATCH RECEIVED</span>
+                        </div>
+                        <span class="dispatch-time-badge">Just now</span>
+                    </div>
+                    <div class="dispatch-body">
+                        <div class="dispatch-meta-row">
+                            <span>📱 SMS: <strong id="otpMaskedPhone">+234 803 *** 4567</strong></span>
+                            <span>✉️ Email: <strong id="otpMaskedEmail">ad***@hospital.puit.edu.ng</strong></span>
+                        </div>
+                        <div class="dispatch-code-row">
+                            <span class="dispatch-code-label">Verification Code:</span>
+                            <span class="dispatch-otp-display" id="dispatchOtpHighlight">482910</span>
+                        </div>
+                        <div class="dispatch-actions-row">
+                            <button type="button" class="btn-dispatch btn-copy" id="btnCopyOtp">📋 Copy Code</button>
+                            <button type="button" class="btn-dispatch btn-autofill" id="btnAutoFillOtp">⚡ Auto-fill Code</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="auth-error-alert" id="otpErrorMessage" style="display: none;"></div>
+
+                <form id="authOtpForm" novalidate>
+                    <div class="otp-inputs-wrapper">
+                        <label class="otp-instruction-label">Type the 6-digit OTP code below:</label>
+                        <div class="otp-boxes-grid">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="0" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]*">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]*">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]*">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]*">
+                            <input type="text" class="otp-digit" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]*">
+                        </div>
+                    </div>
+
+                    <div class="otp-meta-bar">
+                        <div class="otp-countdown-wrap">
+                            <span class="otp-timer-icon">⏱</span>
+                            <span>Expires in: <strong id="otpCountdownTimer">05:00</strong></span>
+                        </div>
+                        <button type="button" class="btn-text-link" id="btnResendOtp" disabled>
+                            🔄 Resend Code (<span id="resendCooldown">30</span>s)
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block btn-auth-action" id="btnVerifyOtp">
+                        <span>🛡️ Confirm OTP & Open Hospital System</span>
+                    </button>
+                </form>
+
+                <div class="auth-footer-links">
+                    <button type="button" class="btn-text-link" id="btnBackToStep1">
+                        ← Back to Staff Credentials
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= STEP 3: ACCESS GRANTED ANIMATION ================= -->
+            <div class="auth-panel" id="authStep3Panel" style="display: none;">
+                <div class="auth-success-screen">
+                    <div class="auth-success-icon">✓</div>
+                    <h2>Identity Verified!</h2>
+                    <p>Two-Step Authentication successful. Loading clinical dashboard and hospital records...</p>
+                    <div class="auth-loading-bar">
+                        <div class="auth-loading-progress"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Architecture Banner -->
+            <div class="auth-security-footer">
+                <div class="security-chip">🧂 128-bit Salt</div>
+                <div class="security-chip">🌶 Secret Pepper</div>
+                <div class="security-chip">🔐 PBKDF2-SHA512</div>
+                <div class="security-chip">📱 2FA OTP</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN HOSPITAL MANAGEMENT APPLICATION CONTAINER (Gated behind 2FA Authentication) -->
+    <div class="app-container" id="appContainer" style="display: none;">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand-container">
+                <div class="brand-logo-row">
+                    <div class="brand-cross-icon">✚</div>
+                    <div class="brand-titles">
+                        <h2>PUIT24210078</h2>
+                        <p>Hospital System</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-label">Clinical Core</div>
+                <a href="#dashboard" class="nav-link active" data-tab="dashboard">
+                    <span class="nav-icon">📊</span> Dashboard
+                </a>
+                <a href="#patients" class="nav-link" data-tab="patients">
+                    <span class="nav-icon">👥</span> Patients Records
+                </a>
+                <a href="#doctors" class="nav-link" data-tab="doctors">
+                    <span class="nav-icon">👨‍⚕️</span> Doctors Directory
+                </a>
+                <a href="#duty" class="nav-link" data-tab="duty">
+                    <span class="nav-icon">⏱</span> Doctors On Duty
+                </a>
+                <a href="#appointments" class="nav-link" data-tab="appointments">
+                    <span class="nav-icon">📅</span> Appointments
+                </a>
+
+                <div class="nav-label" style="margin-top: 14px;">Smart Triage</div>
+                <a href="#firstaid" class="nav-link" data-tab="firstaid">
+                    <span class="nav-icon">💊</span> First Aid & Drugs
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="hospital-emergency-badge">
+                    <span>🚨</span>
+                    <div>
+                        <strong>Emergency 24/7:</strong>
+                        <div>Ext: 911 / +234-ER-PUIT</div>
+                    </div>
+                </div>
+                <button class="btn-sidebar-logout" onclick="auth.logout()" title="Sign out of workstation">
+                    🚪 Log Out System
+                </button>
+                <button class="btn-reset-demo" onclick="app.resetAllData()">
+                    🔄 Reset Sample Records
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN WRAPPER -->
+        <div class="main-wrapper">
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="mobile-menu-btn" id="mobileMenuToggle" aria-label="Toggle Navigation">☰</button>
+                    <h1 class="current-section-title" id="currentSectionTitle">Hospital Dashboard & Live Status</h1>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="live-clock-card">
+                        <span class="clock-icon">🕒</span>
+                        <span class="clock-time" id="liveClockTime">00:00:00</span>
+                        <span class="clock-date" id="liveClockDate">Loading...</span>
+                    </div>
+
+                    <div class="user-badge" id="topbarUserBadge">
+                        <div class="user-avatar" id="currentUserAvatar">AD</div>
+                        <div class="user-details" style="font-size: 12px; line-height: 1.2;">
+                            <strong style="display:block; color: var(--dark);" id="currentUserName">Admin Staff</strong>
+                            <span style="color: var(--muted);" id="currentUserRole">PUIT24210078</span>
+                        </div>
+                        <button class="btn-topbar-logout" id="topbarLogoutBtn" title="Sign out of hospital terminal" onclick="auth.logout()">
+                            <span>🚪</span> Sign Out
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTENT BODY -->
+            <main class="content-body">
+                <!-- 1. DASHBOARD VIEW -->
+                <section class="tab-view active" id="view-dashboard">
+                    <div class="dashboard-hero-banner">
+                        <div class="hero-left">
+                            <h1>PUIT24210078 HOSPITAL MANAGEMENT SYSTEM</h1>
+                            <p>Integrated clinical administration platform managing in-patient care, doctor scheduling, real-time duty shifts, patient triage, and emergency first aid medication protocols.</p>
+                        </div>
+                        <div class="hero-quick-actions">
+                            <button class="btn btn-primary" onclick="app.openAddPatientModal()">
+                                ➕ Register Patient
+                            </button>
+                            <button class="btn btn-secondary" onclick="app.openBookAppointmentModal()">
+                                📅 Book Appointment
+                            </button>
+                            <button class="btn btn-danger" onclick="app.switchTab('firstaid')">
+                                💊 First Aid Advice
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Top Statistics Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper icon-blue">👥</div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="statTotalPatients">0</div>
+                                <div class="stat-label">Total Patients</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper icon-rose">🏥</div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="statInpatients">0</div>
+                                <div class="stat-label">Active Inpatients</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper icon-purple">👨‍⚕️</div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="statTotalDoctors">0</div>
+                                <div class="stat-label">Medical Doctors</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper icon-emerald">⚡</div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="statOnDutyDoctors">0</div>
+                                <div class="stat-label">Doctors On Duty</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper icon-amber">📅</div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="statAppointmentsCount">0</div>
+                                <div class="stat-label">Active Appointments</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Split Columns: Activities & Duty Roster -->
+                    <div class="dashboard-columns-grid">
+                        <div class="left-col">
+                            <!-- Live Duty Summary -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><span>🩺</span> Doctors Currently On Duty</h3>
+                                    <button class="btn-sm btn-outline-primary" onclick="app.switchTab('duty')">
+                                        View Full Duty Roster →
+                                    </button>
+                                </div>
+                                <div class="card-body p-0" id="dashboardDutyList">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Live Activity Feed -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><span>📋</span> Recent System Activities</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="activity-feed-list" id="dashboardActivityFeed">
+                                        <!-- Rendered dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="right-col">
+                            <!-- Quick First Aid Banner -->
+                            <div class="card" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac;">
+                                <div class="card-body">
+                                    <h4 style="color: #166534; font-size: 15px; margin-bottom: 6px;">💊 Feeling Unwell? First Aid Checker</h4>
+                                    <p style="font-size: 12.5px; color: #15803d; margin-bottom: 14px;">
+                                        Complain what is wrong with you to receive immediate clinical first aid steps and safe OTC drug recommendations.
+                                    </p>
+                                    <button class="btn btn-sm btn-success" style="width: 100%;" onclick="app.switchTab('firstaid')">
+                                        Open Symptom & Drug Advisor
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Upcoming Appointments Summary -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><span>📅</span> Upcoming Appointments</h3>
+                                    <button class="btn-sm btn-outline-primary" onclick="app.switchTab('appointments')">
+                                        All →
+                                    </button>
+                                </div>
+                                <div class="card-body" id="dashboardAppointmentsList">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. PATIENTS RECORDS VIEW -->
+                <section class="tab-view" id="view-patients">
+                    <div class="module-toolbar">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="patientSearchInput" placeholder="Search by patient name, ID, phone, condition...">
+                        </div>
+
+                        <div class="filter-group">
+                            <select id="patientStatusFilter" class="filter-select">
+                                <option value="ALL">All Admission Statuses</option>
+                                <option value="Inpatient">Inpatient</option>
+                                <option value="Outpatient">Outpatient</option>
+                                <option value="Emergency">Emergency</option>
+                                <option value="Discharged">Discharged</option>
+                            </select>
+
+                            <button class="btn btn-primary" onclick="app.openAddPatientModal()">
+                                ➕ Register Patient
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient ID</th>
+                                    <th>Patient Name & Demographics</th>
+                                    <th>Status</th>
+                                    <th>Diagnosis / Condition</th>
+                                    <th>Attending Doctor</th>
+                                    <th>Ward / Room</th>
+                                    <th>Admitted Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientsTableBody">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 3. DOCTORS DIRECTORY VIEW -->
+                <section class="tab-view" id="view-doctors">
+                    <div class="module-toolbar">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="doctorSearchInput" placeholder="Search doctor by name, specialty, department...">
+                        </div>
+
+                        <div class="filter-group">
+                            <select id="doctorDeptFilter" class="filter-select">
+                                <option value="ALL">All Departments</option>
+                                <option value="Accident & Emergency (A&E)">Accident & Emergency (A&E)</option>
+                                <option value="Cardiovascular Sciences">Cardiovascular Sciences</option>
+                                <option value="Internal Medicine / OPD">Internal Medicine / OPD</option>
+                                <option value="Pediatrics Ward">Pediatrics Ward</option>
+                                <option value="Orthopedics & Sports Medicine">Orthopedics & Sports Medicine</option>
+                                <option value="Maternal & Child Health">Maternal & Child Health</option>
+                                <option value="Neurology Department">Neurology Department</option>
+                                <option value="Intensive Care Unit (ICU)">Intensive Care Unit (ICU)</option>
+                            </select>
+
+                            <button class="btn btn-primary" onclick="app.openAddDoctorModal()">
+                                ➕ Add Doctor
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="doctors-grid" id="doctorsGrid">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </section>
+
+                <!-- 4. DOCTORS ON DUTY ROSTER VIEW -->
+                <section class="tab-view" id="view-duty">
+                    <div class="duty-banner">
+                        <div>
+                            <h3>🩺 Live Hospital Doctors On-Duty Board</h3>
+                            <p>Real-time clinical roster tracking doctors actively on duty across morning, evening, and night shifts.</p>
+                        </div>
+                        <div class="filter-group">
+                            <select id="dutyShiftFilter" class="filter-select" style="background:#ffffff; color:#0f172a; font-weight:600;">
+                                <option value="ALL">All Shifts</option>
+                                <option value="ONDUTY">Currently On Duty Only</option>
+                                <option value="morning">Morning Shift (08:00 - 16:00)</option>
+                                <option value="evening">Evening Shift (16:00 - 00:00)</option>
+                                <option value="night">Night Shift (00:00 - 08:00)</option>
+                            </select>
+
+                            <select id="dutyDeptFilter" class="filter-select" style="background:#ffffff; color:#0f172a; font-weight:600;">
+                                <option value="ALL">All Departments</option>
+                                <option value="Accident & Emergency (A&E)">Accident & Emergency</option>
+                                <option value="Cardiovascular Sciences">Cardiovascular Sciences</option>
+                                <option value="Internal Medicine / OPD">Internal Medicine / OPD</option>
+                                <option value="Pediatrics Ward">Pediatrics Ward</option>
+                                <option value="Orthopedics & Sports Medicine">Orthopedics</option>
+                                <option value="Maternal & Child Health">Maternal Health</option>
+                                <option value="Neurology Department">Neurology</option>
+                                <option value="Intensive Care Unit (ICU)">ICU</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="duty-roster-grid" id="dutyRosterGrid">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </section>
+
+                <!-- 5. APPOINTMENTS SCHEDULER VIEW -->
+                <section class="tab-view" id="view-appointments">
+                    <div class="module-toolbar">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="apptSearchInput" placeholder="Search appointment by patient, doctor, or ID...">
+                        </div>
+
+                        <div class="filter-group">
+                            <select id="apptStatusFilter" class="filter-select">
+                                <option value="ALL">All Statuses</option>
+                                <option value="Confirmed">Confirmed</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+
+                            <button class="btn btn-primary" onclick="app.openBookAppointmentModal()">
+                                ➕ Book Appointment
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Appt ID</th>
+                                    <th>Patient Name & Phone</th>
+                                    <th>Doctor & Department</th>
+                                    <th>Date & Time</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 6. FIRST AID & DRUGS ADVISOR VIEW -->
+                <section class="tab-view" id="view-firstaid">
+                    <div class="firstaid-hero">
+                        <h2>💊 PUIT24210078 First Aid & Medicine Advisor</h2>
+                        <p>Tell the system what hurts or complain what is wrong with you. Receive immediate emergency first aid steps, safe Over-the-Counter (OTC) drug dosages, contraindications, and on-duty doctor referrals.</p>
+
+                        <div class="symptom-search-bar">
+                            <input type="text" id="symptomInput" placeholder="Type your complaint (e.g. severe headache, burn on hand, high fever, stomach pain, sprained ankle)...">
+                            <button class="btn btn-primary" id="symptomSubmit" style="padding: 14px 24px;">
+                                Analyze Symptoms 🩺
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick complaint shortcut buttons -->
+                    <div class="quick-complaints-section">
+                        <div class="quick-complaints-title">Common Medical Complaints (Click for instant first aid & drugs):</div>
+                        <div class="quick-chips-grid" id="firstAidQuickChips">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- First Aid Advice Container -->
+                    <div id="firstAidAdviceContainer">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- =======================================================================
+         MODALS
+         ======================================================================= -->
+
+    <!-- Modal: Register / Edit Patient -->
+    <div class="modal" id="modalPatient">
+        <div class="modal-backdrop"></div>
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="patientModalTitle">Register New Patient</h3>
+                <button class="modal-close" aria-label="Close">&times;</button>
+            </div>
+            <form id="patientForm" onsubmit="app.savePatientForm(event)">
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Patient ID *</label>
+                            <input type="text" id="patientFormId" required readonly style="background:#f1f5f9;">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Full Name *</label>
+                            <input type="text" id="patientFormName" required placeholder="e.g. John Doe">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Age *</label>
+                            <input type="number" id="patientFormAge" required min="0" max="130" placeholder="e.g. 35">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Gender *</label>
+                            <select id="patientFormGender" required>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Blood Group *</label>
+                            <select id="patientFormBloodGroup" required>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="text" id="patientFormPhone" required placeholder="+234 ...">
+                        </div>
+
+                        <div class="form-group col-span-2">
+                            <label>Residential Address</label>
+                            <input type="text" id="patientFormAddress" placeholder="Street, City, State">
+                        </div>
+
+                        <div class="form-group col-span-2">
+                            <label>Emergency Contact Person & Phone</label>
+                            <input type="text" id="patientFormEmergencyContact" placeholder="e.g. Jane Doe (Wife) - +234 800 000 0000">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Admission Status *</label>
+                            <select id="patientFormStatus" required>
+                                <option value="Outpatient">Outpatient</option>
+                                <option value="Inpatient">Inpatient</option>
+                                <option value="Emergency">Emergency</option>
+                                <option value="Discharged">Discharged</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Attending Doctor</label>
+                            <select id="patientFormDoctor">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ward / Bed Location</label>
+                            <input type="text" id="patientFormRoom" placeholder="e.g. Ward B, Bed 04">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Admission / Registration Date</label>
+                            <input type="date" id="patientFormAdmissionDate" required>
+                        </div>
+
+                        <div class="form-group col-span-2">
+                            <label>Diagnosis / Medical Complaint *</label>
+                            <input type="text" id="patientFormCondition" required placeholder="e.g. Acute Malaria, Fracture, Severe Gastroenteritis">
+                        </div>
+
+                        <div class="form-group col-span-2">
+                            <label>Known Drug Allergies</label>
+                            <input type="text" id="patientFormAllergies" placeholder="e.g. Penicillin, Sulfa drugs, None">
+                        </div>
+
+                        <div class="form-group col-span-2">
+                            <label>Clinical Notes / Medical History</label>
+                            <textarea id="patientFormNotes" rows="3" placeholder="Enter clinical observations, vitals, treatment administered..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Patient Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Register / Edit Doctor -->
+    <div class="modal" id="modalDoctor">
+        <div class="modal-backdrop"></div>
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="doctorModalTitle">Register New Doctor</h3>
+                <button class="modal-close" aria-label="Close">&times;</button>
+            </div>
+            <form id="doctorForm" onsubmit="app.saveDoctorForm(event)">
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Doctor ID *</label>
+                            <input type="text" id="doctorFormId" required readonly style="background:#f1f5f9;">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Doctor Full Name *</label>
+                            <input type="text" id="doctorFormName" required placeholder="Dr. Jane Smith">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Specialization *</label>
+                            <input type="text" id="doctorFormSpecialization" required placeholder="e.g. Cardiology, Pediatrics, General Surgery">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Medical Qualifications</label>
+                            <input type="text" id="doctorFormQualification" placeholder="e.g. MBBS, FWACS, MD">
+                        </div>
+
+                        <div class="form-group col-span-2">
+                            <label>Department *</label>
+                            <select id="doctorFormDepartment" required>
+                                <option value="Accident & Emergency (A&E)">Accident & Emergency (A&E)</option>
+                                <option value="Cardiovascular Sciences">Cardiovascular Sciences</option>
+                                <option value="Internal Medicine / OPD">Internal Medicine / OPD</option>
+                                <option value="Pediatrics Ward">Pediatrics Ward</option>
+                                <option value="Orthopedics & Sports Medicine">Orthopedics & Sports Medicine</option>
+                                <option value="Maternal & Child Health">Maternal & Child Health</option>
+                                <option value="Neurology Department">Neurology Department</option>
+                                <option value="Intensive Care Unit (ICU)">Intensive Care Unit (ICU)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="text" id="doctorFormPhone" required placeholder="+234 ...">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="doctorFormEmail" placeholder="doctor@puit-hospital.org">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Experience</label>
+                            <input type="text" id="doctorFormExperience" placeholder="e.g. 10 years">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Consultation Room / Office</label>
+                            <input type="text" id="doctorFormRoom" placeholder="e.g. Suite 204">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Assigned Shift *</label>
+                            <select id="doctorFormShift" required>
+                                <option value="Morning (08:00 - 16:00)">Morning (08:00 - 16:00)</option>
+                                <option value="Evening (16:00 - 00:00)">Evening (16:00 - 00:00)</option>
+                                <option value="Night (00:00 - 08:00)">Night (00:00 - 08:00)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Current Status *</label>
+                            <select id="doctorFormStatus" required>
+                                <option value="On Duty">On Duty</option>
+                                <option value="Off Duty">Off Duty</option>
+                                <option value="In Surgery">In Surgery</option>
+                                <option value="On Break">On Break</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Doctor Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Book Appointment -->
+    <div class="modal" id="modalAppointment">
+        <div class="modal-backdrop"></div>
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Schedule Doctor Appointment - PUIT24210078</h3>
+                <button class="modal-close" aria-label="Close">&times;</button>
+            </div>
+            <form id="appointmentForm" onsubmit="app.saveAppointmentForm(event)">
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Appointment ID *</label>
+                            <input type="text" id="apptFormId" required readonly style="background:#f1f5f9;">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Patient Full Name *</label>
+                            <input type="text" id="apptFormPatientName" required placeholder="Patient full name">
+                        </div>
+
+                        <div class="form-group col-span-2">
+                            <label>Patient Contact Phone</label>
+                            <input type="text" id="apptFormPatientPhone" placeholder="+234 ...">
+                        </div>
+
+                        <div class="form-group col-span-2">
+                            <label>Select Specialist / Attending Doctor *</label>
+                            <select id="apptFormDoctor" required>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Appointment Date *</label>
+                            <input type="date" id="apptFormDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Time Slot *</label>
+                            <input type="time" id="apptFormTime" required value="09:00">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Priority Level *</label>
+                            <select id="apptFormPriority" required>
+                                <option value="Routine">Routine Consultation</option>
+                                <option value="Urgent">Urgent Review</option>
+                                <option value="Emergency">Emergency Case</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group col-span-2">
+                            <label>Reason for Visit / Complaint</label>
+                            <textarea id="apptFormReason" rows="3" placeholder="Describe symptoms or purpose of appointment..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Confirm Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: View Detailed Patient Chart -->
+    <div class="modal" id="modalPatientChart">
+        <div class="modal-backdrop"></div>
+        <div class="modal-dialog" style="max-width: 760px;">
+            <div class="modal-header">
+                <h3>PUIT24210078 Patient Medical Record Sheet</h3>
+                <button class="modal-close" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body" id="patientChartContent">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         MODAL: STAFF REGISTRATION (SALT & PEPPER ENCRYPTED)
+         ========================================================================= -->
+    <div class="modal auth-modal" id="modalRegisterStaff">
+        <div class="modal-backdrop"></div>
+        <div class="modal-dialog" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>🏥 Register New Clinical Staff Member</h3>
+                <button type="button" class="modal-close" aria-label="Close">&times;</button>
+            </div>
+            <form id="staffRegistrationForm" novalidate>
+                <div class="modal-body">
+                    <p style="margin-bottom: 16px; color: var(--muted); font-size: 13px;">
+                        Staff accounts are protected with an individual 128-bit cryptographic <strong>Salt</strong> and server <strong>Pepper</strong>. Two-Step Authentication (OTP) will be enforced upon login.
+                    </p>
+
+                    <div class="auth-error-alert" id="registerErrorMessage" style="display: none; margin-bottom: 16px;"></div>
+
+                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div class="form-group col-span-2">
+                            <label>Full Name *</label>
+                            <input type="text" id="regName" placeholder="e.g. Dr. Adaobi Okonkwo" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Staff ID</label>
+                            <input type="text" id="regStaffId" placeholder="e.g. PUIT-DOC-105">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Hospital Role / Department *</label>
+                            <select id="regRole" required>
+                                <option value="Medical Officer / Resident">Medical Officer / Resident</option>
+                                <option value="Consultant Physician">Consultant Physician</option>
+                                <option value="Accident & Emergency Doctor">Accident & Emergency Doctor</option>
+                                <option value="Clinical Staff Nurse">Clinical Staff Nurse</option>
+                                <option value="Triage Head Nurse">Triage Head Nurse</option>
+                                <option value="Chief Pharmacist">Chief Pharmacist</option>
+                                <option value="Hospital Administrator">Hospital Administrator</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Clinical Email *</label>
+                            <input type="email" id="regEmail" placeholder="staff@hospital.puit.edu.ng" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Emergency Mobile Phone (for OTP) *</label>
+                            <input type="tel" id="regPhone" placeholder="+234 800 000 0000" required>
+                        </div>
+
+                        <div class="form-group col-span-2">
+                            <label>Desired Username *</label>
+                            <input type="text" id="regUsername" placeholder="e.g. dr.adaobi" required autocomplete="username">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Password (Min. 8 chars) *</label>
+                            <input type="password" id="regPassword" placeholder="••••••••••••" required autocomplete="new-password">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Confirm Password *</label>
+                            <input type="password" id="regConfirmPassword" placeholder="••••••••••••" required autocomplete="new-password">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmitRegistration">
+                        <span>Register Clinical Account</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- =========================================================================
+         MODAL: HOW SALT, PEPPER & 2-STEP AUTHENTICATION WORKS
+         ========================================================================= -->
+    <div class="modal auth-modal" id="modalSecurityInfo">
+        <div class="modal-backdrop"></div>
+        <div class="modal-dialog" style="max-width: 680px;">
+            <div class="modal-header">
+                <h3>🔐 PUIT24210078 Clinical Security Specification</h3>
+                <button type="button" class="modal-close" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body" style="font-size: 14px; line-height: 1.6;">
+                <p style="margin-bottom: 16px;">
+                    This Hospital Management System implements a multi-layered cryptographic defense architecture designed to protect Electronic Health Records (EHR) and clinical access:
+                </p>
+
+                <div class="security-feature-card">
+                    <h4>🧂 1. Per-User Cryptographic Salt (128-bit)</h4>
+                    <p>Every clinical staff account is assigned a unique, cryptographically random 128-bit hex string upon registration. <strong>Defense:</strong> Even if two doctors pick the same password, their resulting hashes are completely different. This completely eliminates precomputed Rainbow Table and dictionary attacks.</p>
+                </div>
+
+                <div class="security-feature-card">
+                    <h4>🌶 2. Confidential Application Pepper (HMAC Secret)</h4>
+                    <p>A server-side secret key known only to the running application environment and <em>never</em> stored in the database. <strong>Defense:</strong> In the event of an SQL dump or database exfiltration, attackers cannot test or crack password hashes without the server pepper.</p>
+                </div>
+
+                <div class="security-feature-card">
+                    <h4>⚙️ 3. Key Derivation: PBKDF2-HMAC-SHA512 (10,000 Iterations)</h4>
+                    <p>The password and pepper are combined and iteratively hashed with the user's salt 10,000 times, producing a 512-bit key. <strong>Defense:</strong> Computationally expensive to brute-force on modern GPU clusters.</p>
+                </div>
+
+                <div class="security-feature-card">
+                    <h4>📱 4. Two-Step Authentication (2FA) with OTP Code</h4>
+                    <p>Passing password verification only completes Step 1. A time-sensitive, single-use 6-digit numeric OTP is generated and dispatched to the clinician's registered contact channel (SMS & Pager simulation) with a 5-minute expiry timer. <strong>Access to the Hospital Management System remains strictly locked until the valid OTP code is submitted.</strong></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary modal-close">Got It</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Application JavaScript Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/symptomChecker.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

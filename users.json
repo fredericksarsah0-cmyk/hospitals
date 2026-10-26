@@ -1,0 +1,38 @@
+[
+  {
+    "id": "USR-001",
+    "username": "admin",
+    "name": "System Administrator",
+    "role": "Chief Administrator",
+    "staffId": "PUIT-ADM-001",
+    "email": "admin@hospital.puit.edu.ng",
+    "phone": "+234 803 123 4567",
+    "salt": "05e5acb6371343153b2bee633a3b54e8",
+    "hash": "6b3f68fa70c9ef7118f82b6afc65cff83a97713ec0b45698e7c76711284987ffaf1cf400278f4fd1c374b3d4f90c7e32f5af80bf175d1428ddb3bff3f65343de",
+    "createdAt": "2026-10-26T07:15:01.870Z"
+  },
+  {
+    "id": "USR-002",
+    "username": "dr.adebayo",
+    "name": "Dr. Samuel Adebayo, FWACS",
+    "role": "Chief Consultant Physician",
+    "staffId": "PUIT-DOC-101",
+    "email": "dr.adebayo@hospital.puit.edu.ng",
+    "phone": "+234 802 987 6543",
+    "salt": "e71f65bf19a06e00632917e1483c0404",
+    "hash": "7416a1ca0368ae041c5dc18304a7e2cb25a401f285938339c7d960d51e25b8201837884fdb6d78fb8c07dc775c2456f6d97e589047f94dd1529f0f7bc0a6f2b1",
+    "createdAt": "2026-10-26T07:15:01.888Z"
+  },
+  {
+    "id": "USR-003",
+    "username": "nurse.chioma",
+    "name": "Nurse Chioma Okonjo, RN",
+    "role": "Head Triage Nurse",
+    "staffId": "PUIT-NRS-204",
+    "email": "chioma@hospital.puit.edu.ng",
+    "phone": "+234 814 555 0199",
+    "salt": "363513360e09f16c13b4daeb31a8f85b",
+    "hash": "cce427b60314f2d67926add89e8ef202bb38553fd297fe8733276c8e63b421b482e5e238d99eb17065c354fb282604071ea8d7a6ef8425aa7689ba6bfe5aef2a",
+    "createdAt": "2026-10-26T07:15:01.904Z"
+  }
+]
